@@ -2,13 +2,15 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: [develop]
+    branches: [ develop ]
   pull_request:
-    branches: [develop]
+    branches: [ develop ]
 
 jobs:
-  build:
+  test:
+
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 16
@@ -17,15 +19,15 @@ jobs:
           java-version: '16'
           distribution: 'adopt'
           cache: gradle
-      - name: Firebase secrets
-        env:
-          FIREBASE_AND_FIRESTORE_SECRETS: ${{ secrets.FIREBASE_AND_FIRESTORE_SECRETS }}
-        run: echo $FIREBASE_AND_FIRESTORE_SECRETS > ./firebase.json
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
       - name: Build with Gradle
+        env:
+          FIREBASE_WEB_API_KEY: ${{ secrets.FIREBASE_WEB_API_KEY }}
         run: ./gradlew build
-      - name: End-To-End Tests
-        run: ./gradlew test
+      - name: End-to-end test
+        env:
+          FIREBASE_WEB_API_KEY: ${{ secrets.FIREBASE_WEB_API_KEY }}
+        run: ./gradlew test --tests "*"
